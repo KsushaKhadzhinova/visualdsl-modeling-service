@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Enterprise DSL IDE - Logic Module
 // Aligning with vs code and draw.io logic
 
@@ -227,3 +228,13 @@ window.onload = () => {
         document.getElementById('stat-last-action').innerText = `Activity log: ${time}`;
     }, 10000);
 };
+=======
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+>>>>>>> 182c1d1b6d215898ebd40ae6c59118e6e6bea517
