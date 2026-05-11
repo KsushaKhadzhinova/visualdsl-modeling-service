@@ -1,120 +1,79 @@
-:root {
-    color-scheme: dark;
-    background-color: var(--bg-60);
-    color: var(--text-primary);
-}
+/* udl_project/frontend/css/layout.css */
 
-* {
-    box-sizing: border-box;
-}
+
+/* Сброс базовых настроек, чтобы ничего не «выпирало» */
 
 html,
 body {
     margin: 0;
-    min-height: 100%;
+    padding: 0;
+    height: 100vh;
+    /* Строго высота окна */
+    width: 100vw;
+    overflow: hidden;
+    /* Глобальная прокрутка запрещена */
     font-family: var(--font-main);
-    background: var(--bg-60);
+    background-color: var(--bg-60);
     color: var(--text-primary);
 }
 
 body {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    /* Шапка, рабочая область и подвал в колонку */
 }
 
-.skip-link {
-    position: absolute;
-    left: -999px;
-    top: auto;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-}
 
-.skip-link:focus-visible {
-    position: static;
-    width: auto;
-    height: auto;
-    padding: 10px 14px;
-    margin: 12px;
-    background: var(--accent-10);
-    color: white;
-    border-radius: var(--radius);
-    z-index: 1000;
-}
+/* Главная рабочая область */
 
 .workspace {
     display: flex;
     flex: 1;
-    min-height: calc(100vh - 180px);
+    /* Занимает всё пространство между верхом и низом */
     overflow: hidden;
+    position: relative;
 }
+
+
+/* Контейнер Редактор + Превью */
 
 .editor-preview-container {
-    flex: 1 1 0;
     display: flex;
     flex-direction: column;
+    flex: 1;
     min-width: 0;
-    background: var(--bg-10);
+    background: var(--bg-60);
 }
 
+
+/* Тулбар над редактором */
+
 .editor-toolbar {
+    height: 40px;
+    background: var(--bg-30);
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 18px;
-    background: var(--panel-bg);
-    border-bottom: 1px solid var(--border);
+    padding: 0 12px;
+    z-index: 10;
 }
 
 .editor-toolbar__path {
+    font-size: 12px;
     color: var(--text-muted);
-    font-size: 12px;
+    font-family: var(--font-code);
 }
 
-.editor-toolbar__controls {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-}
 
-.control-select,
-.btn,
-.icon-button {
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    font-size: 12px;
-    padding: 10px 14px;
-    color: var(--text-primary);
-    background: var(--surface);
-    cursor: pointer;
-}
-
-.control-select {
-    min-width: 140px;
-}
-
-.btn {
-    background: var(--accent-10);
-    color: white;
-    border: none;
-}
-
-.btn-primary {
-    background: var(--accent-10);
-}
-
-.icon-button {
-    min-width: 90px;
-    background: var(--bg-30);
-}
+/* Секция с кодом (Monaco) */
 
 .editor-pane {
     flex: 1;
-    min-height: 360px;
-    background: var(--surface);
+    /* По умолчанию занимает половину */
+    min-height: 100px;
+    background: var(--panel-bg);
+    position: relative;
 }
 
 .monaco-editor-container {
@@ -122,178 +81,147 @@ body {
     height: 100%;
 }
 
+
+/* Горизонтальный ресайзер между кодом и превью */
+
+.resizer-h {
+    height: 4px;
+    background: var(--border);
+    cursor: ns-resize;
+    transition: background 0.2s, height 0.2s;
+    z-index: 20;
+}
+
+.resizer-h:hover {
+    background: var(--accent-10);
+    height: 4px;
+}
+
+
+/* Секция превью диаграммы */
+
 .preview-pane {
-    min-height: 240px;
-    background: var(--panel-bg);
-    border-top: 1px solid var(--border);
+    flex: 1;
     display: flex;
     flex-direction: column;
+    background: var(--bg-60);
+    border-top: 1px solid var(--border);
+    min-height: 100px;
 }
 
 .preview-toolbar {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 12px 18px;
-    background: var(--panel-bg);
+    height: 35px;
+    background: var(--bg-30);
     border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
 }
 
 .preview-output {
     flex: 1;
     overflow: auto;
-    padding: 18px;
-    background: var(--bg-60);
-    color: var(--text-primary);
+    /* Прокрутка только здесь, если схема большая */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    background-size: 20px 20px;
+    /* Сетка на фоне превью */
 }
 
-.placeholder {
-    color: var(--text-muted);
-    font-size: 13px;
-}
+
+/* Боковая панель (Explorer) */
 
 .sidebar {
     width: 260px;
     background: var(--bg-30);
-    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    padding: 18px 14px;
+    order: -1;
+    /* Ставим слева от редактора */
 }
 
 .sidebar__header {
-    font-size: 12px;
-    letter-spacing: 0.08em;
+    padding: 10px 15px;
+    font-size: 11px;
     text-transform: uppercase;
+    letter-spacing: 1px;
     color: var(--text-muted);
-    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
 }
 
-.sidebar__section {
-    display: grid;
-    gap: 8px;
-}
 
-.sidebar-item {
-    width: 100%;
-    text-align: left;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    color: var(--text-primary);
-    cursor: pointer;
-}
-
-.sidebar-item:hover,
-.panel-tab:hover {
-    background: var(--bg-10);
-}
+/* Узкая полоска слева (Activity Bar) */
 
 .activity-bar {
     width: 54px;
-    background: var(--bg-30);
-    border-left: 1px solid var(--border);
+    background: var(--bg-10);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 0;
-    gap: 12px;
+    padding-top: 15px;
+    border-right: 1px solid var(--border);
+    order: -2;
+    /* Самая левая панель */
 }
 
-.activity-bar__icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1px solid transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-primary);
-    background: var(--surface);
-    cursor: pointer;
-}
 
-.activity-bar__icon.active,
-.activity-bar__icon:hover {
-    border-color: var(--accent-10);
-}
+/* Нижняя панель (Терминал) */
 
 .bottom-panel {
+    height: 180px;
+    /* Фиксированная высота по умолчанию */
     background: var(--panel-bg);
     border-top: 1px solid var(--border);
-    padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .panel-tabs {
     display: flex;
-    gap: 8px;
-    padding: 10px 18px;
     background: var(--bg-30);
+    padding: 0 10px;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
 }
 
 .panel-tab {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
+    padding: 8px 0;
+    font-size: 12px;
     cursor: pointer;
-    color: var(--text-primary);
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
 }
 
 .panel-tab.active {
-    background: var(--accent-10);
-    color: #ffffff;
-    border-color: transparent;
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-10);
 }
 
 .panel-console {
-    min-height: 140px;
-    padding: 16px 18px;
-    overflow: auto;
-    background: var(--bg-60);
-    color: var(--text-primary);
+    flex: 1;
+    padding: 10px;
     font-family: var(--font-code);
     font-size: 13px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    color: #d1d5db;
 }
 
-.toast {
-    position: fixed;
-    bottom: 22px;
-    right: 22px;
-    background: rgba(0, 122, 204, 0.92);
-    color: white;
-    padding: 12px 18px;
-    border-radius: 10px;
-    box-shadow: var(--shadow);
-    opacity: 0;
-    animation: toast-in 0.3s forwards;
-}
 
-@keyframes toast-in {
-    from {
-        transform: translateY(16px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
+/* Вспомогательные классы */
 
-@media (max-width: 1100px) {
-    .workspace {
-        flex-direction: column;
-    }
-    .sidebar,
-    .activity-bar {
-        width: 100%;
-        border-left: none;
-        border-top: 1px solid var(--border);
-    }
-    .activity-bar {
-        flex-direction: row;
-        justify-content: center;
-        padding: 12px;
-    }
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
 }
