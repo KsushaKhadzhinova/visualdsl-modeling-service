@@ -1,12 +1,15 @@
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import httpx
+from sqlalchemy.orm import Session
 
+from .parser_engine import parse_udl, UDLParseError
 from .ai_service import generate_ai_response
+from .db import get_db, Diagram
 
 app = FastAPI(title="VisualDSL Backend")
 
@@ -29,6 +32,16 @@ class DiagramRequest(BaseModel):
 class AiRequest(BaseModel):
     prompt: str
 
+class SaveRequest(BaseModel):
+    title: str = "current_project.vdl"
+    code: str
+    engine: str
+    notation: str
+
+class GithubExportRequest(BaseModel):
+    code: str
+    description: str = "Exported from VisualDSL IDE"
+
 
 async def render_via_kroki(code: str, diagram_type: str) -> str:
     diagram_type = diagram_type.lower().strip()
@@ -45,6 +58,53 @@ async def render_via_kroki(code: str, diagram_type: str) -> str:
         if response.status_code != 200:
             raise HTTPException(status_code=502, detail=f"Kroki render failed: {response.status_code}")
         return response.text
+
+
+@app.post("/api/save")
+async def save_diagram(payload: SaveRequest, db: Session = Depends(get_db)):
+    try:
+        # Создаем новую запись в БД
+        new_diagram = Diagram(
+            title=payload.title,
+            code=payload.code,
+            engine=payload.engine,
+            notation=payload.notation
+        )
+        db.add(new_diagram)
+        db.commit()
+        db.refresh(new_diagram) # Получаем сгенерированный ID
+        
+        return {"status": "success", "id": new_diagram.id, "message": "Saved to DB"}
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(exc)}")
+
+
+@app.post("/api/export/github")
+async def export_to_github(payload: GithubExportRequest):
+    # Используем публичный API GitHub для создания анонимных Gist
+    # Идеально подходит для демонстрации интеграции с REST API в рамках Лабы 6
+    url = "https://api.github.com/gists"
+    data = {
+        "description": payload.description,
+        "public": True,
+        "files": {
+            "diagram.udl": {
+                "content": payload.code
+            }
+        }
+    }
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(url, json=data)
+            if response.status_code == 201:
+                gist_url = response.json().get("html_url")
+                return {"status": "success", "url": gist_url}
+            else:
+                raise HTTPException(status_code=response.status_code, detail="GitHub API Error")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/process")

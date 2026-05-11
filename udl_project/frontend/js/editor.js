@@ -2,21 +2,32 @@ window.editorService = {
     editor: null,
     initEditor(defaultValue, theme) {
         return new Promise((resolve, reject) => {
-            if (!window.require) {
-                reject(new Error('RequireJS не найден'));
-                return;
-            }
+            if (!window.require) return reject(new Error('RequireJS не найден'));
 
-            window.require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' } });
             window.require(['vs/editor/editor.main'], () => {
+                // --- ДОБАВИТЬ ЭТОТ БЛОК: Регистрация языка UDL ---
+                monaco.languages.register({ id: 'udl' });
+                monaco.languages.setMonarchTokensProvider('udl', {
+                    tokenizer: {
+                        root: [
+                            [/\b(UML|BPMN|ERD|IDEF0|IDEF3|DFD|class|node|edge)\b/, "keyword"],
+                            [/".*?"/, "string"],
+                            [/\/\/.*/, "comment"],
+                            [/[{}()\[\]]/, "delimiter"],
+                            [/[->]/, "operator"]
+                        ]
+                    }
+                });
+                // ----------------------------------------------------
+
                 this.editor = monaco.editor.create(document.getElementById('monaco-container'), {
                     value: defaultValue,
-                    language: 'plaintext',
+                    language: 'udl', // ЗАМЕНИТЬ 'plaintext' на 'udl'
                     theme: theme === 'dark' ? 'vs-dark' : 'vs',
                     automaticLayout: true,
                     minimap: { enabled: false },
                     fontFamily: 'Fira Code, monospace',
-                    fontSize: 13,
+                    fontSize: 14, // Чуть покрупнее
                     lineNumbers: 'on',
                     roundedSelection: false,
                     scrollBeyondLastLine: false,

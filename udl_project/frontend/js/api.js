@@ -13,6 +13,24 @@ window.apiService = {
 
         return response.json();
     },
+
+    async saveDiagram(code, engine, notation) {
+        const response = await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: document.getElementById('file-path').textContent || "Diagram",
+                code,
+                engine,
+                notation
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при сохранении в базу данных');
+        }
+        return response.json();
+    },
     async generateAiResponse(prompt) {
         const response = await fetch('/api/ai', {
             method: 'POST',
