@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import httpx
 
-from parser_engine import parse_udl, UDLParseError
+from .ai_service import generate_ai_response
 
 app = FastAPI(title="VisualDSL Backend")
 
@@ -15,10 +18,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+frontend_dir = Path(__file__).resolve().parents[1] / "frontend"
+app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+
 class DiagramRequest(BaseModel):
     code: str
     engine: str
     notation: str
+
+class AiRequest(BaseModel):
+    prompt: str
 
 
 async def render_via_kroki(code: str, diagram_type: str) -> str:
@@ -78,6 +87,15 @@ async def process_diagram(payload: DiagramRequest):
             raise HTTPException(status_code=422, detail=str(exc))
 
     raise HTTPException(status_code=400, detail=f"Unsupported engine: {payload.engine}")
+
+
+@app.post("/api/ai")
+async def generate_ai(payload: AiRequest):
+    try:
+        response = await generate_ai_response(payload.prompt)
+        return {"response": response}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/api/health")

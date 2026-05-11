@@ -1,6 +1,0 @@
-{
-  "name": "VisualDSL Modeling Service",
-  "description": "IDE simulation for Lab Works 1-6: Business logic modelling (DSL), semantic markup, responsive design, and JS interactivity (Themes, Resizing, Sync Sync). Supports UML, BPMN, Petri Nets.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["diagram_as_code", "ai_integration", "multi_notation_support"]
-}

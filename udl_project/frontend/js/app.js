@@ -6,6 +6,13 @@ const btnSave = document.getElementById('btn-save');
 const btnTheme = document.getElementById('btn-theme-toggle');
 const btnExport = document.getElementById('btn-export');
 const btnImport = document.getElementById('btn-import');
+const btnAi = document.getElementById('btn-ai');
+const aiModal = document.getElementById('ai-modal');
+const btnCloseAi = document.getElementById('btn-close-ai');
+const aiForm = document.getElementById('ai-form');
+const aiPrompt = document.getElementById('ai-prompt');
+const aiResponse = document.getElementById('ai-response');
+const btnApplyAi = document.getElementById('btn-apply-ai');
 const previewOutput = document.getElementById('preview-output');
 const panelConsole = document.getElementById('panel-console');
 const toastContainer = document.getElementById('toast-container');
@@ -88,6 +95,25 @@ function setActivePanel(panelName) {
     }
 }
 
+async function handleAiRequest(mode, prompt) {
+    try {
+        const code = window.editorService.getValue();
+        const engine = state.engine;
+        const notation = state.notation;
+
+        const systemPrompt = `You are an expert in ${engine} and ${notation} diagram generation. ${mode === 'write' ? 'Generate code based on the description.' : mode === 'refactor' ? 'Refactor the provided code.' : mode === 'fix' ? 'Fix errors in the code.' : 'Answer the documentation question.'}`;
+
+        const fullPrompt = `${systemPrompt}\n\nCurrent code:\n${code}\n\nUser request: ${prompt}`;
+
+        const result = await window.apiService.generateAiResponse(fullPrompt);
+        aiResponse.innerHTML = `<pre>${escapeHtml(result)}</pre>`;
+        showToast('AI ответ получен.');
+    } catch (error) {
+        aiResponse.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+        showToast('Ошибка AI.');
+    }
+}
+
 function bindEvents() {
     engineSelect.addEventListener('change', (event) => {
         state.engine = event.target.value;
@@ -99,6 +125,35 @@ function bindEvents() {
 
     btnRun.addEventListener('click', runDiagram);
 
+    btnAi.addEventListener('click', () => {
+        aiModal.showModal();
+        aiPrompt.focus();
+    });
+
+    btnCloseAi.addEventListener('click', () => {
+        aiModal.close();
+    });
+
+    aiForm.addEventListener('submit', async(event) => {
+        event.preventDefault();
+        const mode = document.querySelector('input[name="ai-mode"]:checked').value;
+        const prompt = aiPrompt.value.trim();
+        if (!prompt) {
+            showToast('Введите промпт.');
+            return;
+        }
+        await handleAiRequest(mode, prompt);
+    });
+    btnApplyAi.addEventListener('click', () => {
+        const responseText = aiResponse.textContent.trim();
+        if (responseText) {
+            window.editorService.setValue(responseText);
+            aiModal.close();
+            showToast('Код применен.');
+        } else {
+            showToast('Нет ответа для применения.');
+        }
+    });
     btnSave.addEventListener('click', () => {
         localStorage.setItem('visualdsl-code', window.editorService.getValue());
         showToast('Код сохранён.');
@@ -124,8 +179,8 @@ function bindEvents() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.vdl,.txt';
-        input.onchange = async () => {
-            const file = input.files?.[0];
+        input.onchange = async() => {
+            const file = input.files ? .[0];
             if (!file) return;
             const value = await file.text();
             window.editorService.setValue(value);

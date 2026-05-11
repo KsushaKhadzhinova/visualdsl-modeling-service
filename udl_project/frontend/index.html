@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
 </head>
 
 <body data-theme="dark" itemscope itemtype="https://schema.org/SoftwareApplication">
@@ -39,6 +40,7 @@
                         <option value="dfd">DFD</option>
                     </select>
                     <button type="button" class="btn btn-primary" id="btn-run" aria-label="Запустить визуализацию">RUN</button>
+                    <button type="button" class="btn" id="btn-ai" aria-label="AI Assistant">AI</button>
                     <button type="button" class="btn" id="btn-save" aria-label="Сохранить проект">SAVE</button>
                     <button type="button" class="btn" id="btn-theme-toggle" aria-label="Переключить тему">THEME</button>
                 </div>
@@ -87,9 +89,32 @@
 
     <div id="toast-container" aria-live="polite"></div>
 
+    <dialog id="ai-modal" class="modal" aria-labelledby="ai-modal-title" aria-describedby="ai-modal-desc">
+        <div class="modal__header">
+            <h2 id="ai-modal-title" class="modal__title">AI Assistant</h2>
+            <button type="button" class="modal__close" id="btn-close-ai" aria-label="Закрыть">&times;</button>
+        </div>
+        <div id="ai-modal-desc" class="sr-only">Помощник ИИ для генерации и исправления кода диаграмм</div>
+        <form id="ai-form">
+            <fieldset>
+                <legend>Режим:</legend>
+                <label><input type="radio" name="ai-mode" value="write" checked> Писать код (Text-to-Diagram)</label>
+                <label><input type="radio" name="ai-mode" value="refactor"> Исправить код (Refactoring)</label>
+                <label><input type="radio" name="ai-mode" value="fix"> Исправить ошибку</label>
+                <label><input type="radio" name="ai-mode" value="ask"> Спросить по документации</label>
+            </fieldset>
+            <label for="ai-prompt">Промпт:</label>
+            <textarea id="ai-prompt" rows="4" placeholder="Опишите задачу..."></textarea>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+            <button type="button" class="btn" id="btn-apply-ai">Применить</button>
+        </form>
+        <div id="ai-response" class="ai-response" role="region" aria-live="polite"></div>
+    </dialog>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
     <script src="js/api.js"></script>
     <script src="js/editor.js"></script>
+    <script src="js/bi-sync.js"></script>
     <script src="js/app.js"></script>
 </body>
 

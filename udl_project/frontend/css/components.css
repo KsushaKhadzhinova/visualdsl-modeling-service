@@ -1,0 +1,115 @@
+.btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover,
+.icon-button:hover,
+.sidebar-item:hover,
+.panel-tab:hover {
+    background: var(--bg-10);
+}
+
+.modal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(520px, 90vw);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modal__close {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.toast {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    background: rgba(0, 122, 204, 0.92);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    animation: toast-in 0.3s forwards;
+}
+
+.toast--error {
+    background: #ef4444;
+}
+
+.toast--warning {
+    background: #f59e0b;
+}
+
+.toast--success {
+    background: #10b981;
+}
+
+@keyframes toast-in {
+    from {
+        transform: translateY(16px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.line-highlight {
+    background-color: rgba(29, 155, 240, 0.14);
+}
+
+.ai-response {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--bg-10);
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+}
+
+.ai-response pre {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
