@@ -1,32 +1,47 @@
+/* Глобальные настройки шрифтов и базовых радиусов */
+
 :root {
     --font-main: 'Inter', system-ui, -apple-system, sans-serif;
     --font-code: 'Fira Code', 'Consolas', monospace;
-    --radius: 8px;
+    --radius: 2px;
+    /* Острые углы для промышленного дизайна IDE */
     --shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
 }
 
-body[data-theme="dark"] {
-    --bg-60: #181818;
-    --bg-30: #252526;
-    --bg-10: #0f1319;
-    --panel-bg: #1f242c;
-    --text-primary: #e2e8f0;
-    --text-muted: #9ca3af;
+
+/* Темная тема (Industrial Tech / VS Code Style) */
+
+:root[data-theme="dark"] {
+    --bg-60: #0B0E14;
+    /* Глубокий матовый черный фон */
+    --bg-30: #151921;
+    /* Фон боковых панелей */
+    --bg-10: #1c2128;
+    /* Промежуточные элементы */
+    --panel-bg: #0D1117;
+    /* Фон редактора и терминала */
+    --text-primary: #cccccc;
+    --text-muted: #858585;
     --accent-10: #007acc;
+    /* Классический синий акцент */
     --accent-20: #4f7bde;
-    --border: #2f3340;
-    --surface: #24292f;
+    --border: #2D333F;
+    /* Цвет разделителей */
+    --surface: #0D1117;
 }
 
-body[data-theme="light"] {
+
+/* Светлая тема */
+
+:root[data-theme="light"] {
     --bg-60: #ffffff;
-    --bg-30: #f3f6fb;
+    --bg-30: #f3f3f3;
     --bg-10: #e9edf5;
     --panel-bg: #f0f4fb;
     --text-primary: #111827;
     --text-muted: #64748b;
     --accent-10: #0066b8;
     --accent-20: #1d4ed8;
-    --border: #d2d6df;
+    --border: #d1d5db;
     --surface: #ffffff;
 }

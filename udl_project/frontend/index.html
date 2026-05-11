@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="css/components.css">
 </head>
 
-<body data-theme="dark" itemscope itemtype="https://schema.org/SoftwareApplication">
+<body itemscope itemtype="https://schema.org/SoftwareApplication">
     <a href="#monaco-container" class="skip-link">Перейти к редактору</a>
 
     <div class="workspace">
@@ -49,6 +49,8 @@
             <section class="editor-pane">
                 <div id="monaco-container" class="monaco-editor-container" aria-label="Редактор кода"></div>
             </section>
+
+            <div id="main-resizer" class="resizer-h" style="height:4px; background:var(--border); cursor:ns-resize; transition: background 0.2s;" onmouseover="this.style.background='var(--accent-10)'" onmouseout="this.style.background='var(--border)'"></div>
 
             <section class="preview-pane" aria-label="Предпросмотр диаграммы">
                 <div class="preview-toolbar">
@@ -98,17 +100,21 @@
         </div>
         <div id="ai-modal-desc" class="sr-only">Помощник ИИ для генерации и исправления кода диаграмм</div>
         <form id="ai-form">
-            <fieldset>
-                <legend>Режим:</legend>
-                <label><input type="radio" name="ai-mode" value="write" checked> Писать код (Text-to-Diagram)</label>
-                <label><input type="radio" name="ai-mode" value="refactor"> Исправить код (Refactoring)</label>
-                <label><input type="radio" name="ai-mode" value="fix"> Исправить ошибку</label>
-                <label><input type="radio" name="ai-mode" value="ask"> Спросить по документации</label>
+            <fieldset style="border: none; padding: 0; margin-bottom: 15px;">
+                <legend class="sr-only">Режим ИИ</legend>
+                <div style="display: grid; gap: 8px;">
+                    <label><input type="radio" name="ai-mode" value="write" checked> Писать код (Text-to-Diagram)</label>
+                    <label><input type="radio" name="ai-mode" value="refactor"> Исправить код (Refactoring)</label>
+                    <label><input type="radio" name="ai-mode" value="fix"> Исправить ошибку</label>
+                    <label><input type="radio" name="ai-mode" value="ask"> Спросить по документации</label>
+                </div>
             </fieldset>
-            <label for="ai-prompt">Промпт:</label>
-            <textarea id="ai-prompt" rows="4" placeholder="Опишите задачу..."></textarea>
-            <button type="submit" class="btn btn-primary">Отправить</button>
-            <button type="button" class="btn" id="btn-apply-ai">Применить</button>
+            <label for="ai-prompt" style="display: block; margin-bottom: 8px;">Промпт:</label>
+            <textarea id="ai-prompt" rows="4" style="width: 100%; margin-bottom: 15px;" placeholder="Опишите задачу..."></textarea>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Отправить</button>
+                <button type="button" class="btn" id="btn-apply-ai" style="flex: 1;">Применить</button>
+            </div>
         </form>
         <div id="ai-response" class="ai-response" role="region" aria-live="polite"></div>
     </dialog>

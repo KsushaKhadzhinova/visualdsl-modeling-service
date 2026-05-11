@@ -1,4 +1,6 @@
 fastapi
 uvicorn
+lark
 httpx
-lark-parser
+sqlalchemy
+python-dotenv
