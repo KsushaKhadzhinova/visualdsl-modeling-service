@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisualDSL IDE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+</head>
+
+<body data-theme="dark" itemscope itemtype="https://schema.org/SoftwareApplication">
+    <a href="#monaco-container" class="skip-link">Перейти к редактору</a>
+
+    <div class="workspace">
+        <div class="editor-preview-container">
+            <header class="editor-toolbar" role="toolbar" aria-label="IDE controls">
+                <div class="editor-toolbar__path" id="file-path">labs / current_project.vdl</div>
+                <div class="editor-toolbar__controls">
+                    <label class="sr-only" for="engine-select">Engine</label>
+                    <select id="engine-select" aria-label="Выбор движка" class="control-select">
+                        <option value="udl">Internal UDL</option>
+                        <option value="mermaid">Mermaid</option>
+                        <option value="plantuml">PlantUML</option>
+                        <option value="graphviz">Graphviz</option>
+                        <option value="d2">D2</option>
+                        <option value="kroki">Kroki</option>
+                    </select>
+                    <label class="sr-only" for="notation-select">Notation</label>
+                    <select id="notation-select" aria-label="Выбор нотации" class="control-select">
+                        <option value="none">Без нотации</option>
+                        <option value="uml">UML</option>
+                        <option value="erd">ERD</option>
+                        <option value="idef0">IDEF0</option>
+                        <option value="idef3">IDEF3</option>
+                        <option value="dfd">DFD</option>
+                    </select>
+                    <button type="button" class="btn btn-primary" id="btn-run" aria-label="Запустить визуализацию">RUN</button>
+                    <button type="button" class="btn" id="btn-save" aria-label="Сохранить проект">SAVE</button>
+                    <button type="button" class="btn" id="btn-theme-toggle" aria-label="Переключить тему">THEME</button>
+                </div>
+            </header>
+
+            <section class="editor-pane">
+                <div id="monaco-container" class="monaco-editor-container" aria-label="Редактор кода"></div>
+            </section>
+
+            <section class="preview-pane" aria-label="Предпросмотр диаграммы">
+                <div class="preview-toolbar">
+                    <button type="button" class="icon-button" id="btn-export" aria-label="Экспортировать код">EXPORT</button>
+                    <button type="button" class="icon-button" id="btn-import" aria-label="Импортировать код">IMPORT</button>
+                </div>
+                <div id="preview-output" class="preview-output" role="region" aria-live="polite">
+                    <div class="placeholder">Запустите RUN, чтобы отобразить диаграмму или UDL-дерево.</div>
+                </div>
+            </section>
+        </div>
+
+        <aside class="sidebar" aria-label="Explorer" role="complementary">
+            <div class="sidebar__header">Explorer</div>
+            <div class="sidebar__section">
+                <button type="button" class="sidebar-item" data-template="uml_class" aria-label="UML Class Diagram">UML Class Diagram</button>
+                <button type="button" class="sidebar-item" data-template="bpmn_process" aria-label="BPMN Process Flow">BPMN Process Flow</button>
+                <button type="button" class="sidebar-item" data-template="petri_net" aria-label="Petri Net Basic">Petri Net Basic</button>
+            </div>
+        </aside>
+
+        <nav class="activity-bar" aria-label="Activity bar" role="navigation">
+            <button type="button" class="activity-bar__icon active" aria-label="Explorer">E</button>
+            <button type="button" class="activity-bar__icon" aria-label="Search">S</button>
+            <button type="button" class="activity-bar__icon" aria-label="Debug">D</button>
+            <button type="button" class="activity-bar__icon" aria-label="Extensions">X</button>
+        </nav>
+    </div>
+
+    <section class="bottom-panel" aria-label="Консоль">
+        <div class="panel-tabs">
+            <button type="button" class="panel-tab active" data-panel="terminal" aria-label="Терминал">Terminal</button>
+            <button type="button" class="panel-tab" data-panel="problems" aria-label="Проблемы">Problems</button>
+            <button type="button" class="panel-tab" data-panel="output" aria-label="Вывод">Output</button>
+        </div>
+        <div id="panel-console" class="panel-console" role="log">[system] VisualDSL Terminal Initialized. [info] Ready for modeling.</div>
+    </section>
+
+    <div id="toast-container" aria-live="polite"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

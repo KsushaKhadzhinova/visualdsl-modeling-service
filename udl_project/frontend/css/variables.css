@@ -1,0 +1,32 @@
+:root {
+    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-code: 'Fira Code', 'Consolas', monospace;
+    --radius: 8px;
+    --shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+}
+
+:root[data-theme="dark"] {
+    --bg-60: #181818;
+    --bg-30: #252526;
+    --bg-10: #0f1319;
+    --panel-bg: #1f242c;
+    --text-primary: #e2e8f0;
+    --text-muted: #9ca3af;
+    --accent-10: #007acc;
+    --accent-20: #4f7bde;
+    --border: #2f3340;
+    --surface: #24292f;
+}
+
+:root[data-theme="light"] {
+    --bg-60: #ffffff;
+    --bg-30: #f3f6fb;
+    --bg-10: #e9edf5;
+    --panel-bg: #f0f4fb;
+    --text-primary: #111827;
+    --text-muted: #64748b;
+    --accent-10: #0066b8;
+    --accent-20: #1d4ed8;
+    --border: #d2d6df;
+    --surface: #ffffff;
+}

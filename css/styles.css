@@ -1,12 +1,17 @@
 /* Lab 4 & 5: VS Code Industrial Theme (Slate & Cobalt) */
+
 :root {
     /* Dark Theme (Default) */
-    --bg-primary: #0B0E14;    /* 60% */
-    --bg-secondary: #0D1117;  /* Editor */
-    --bg-sidebar: #151921;   /* 30% */
+    --bg-primary: #0B0E14;
+    /* 60% */
+    --bg-secondary: #0D1117;
+    /* Editor */
+    --bg-sidebar: #151921;
+    /* 30% */
     --bg-activity: #10141b;
     --border-color: #2D333F;
-    --accent-color: #4F46E5;  /* 10% Cobalt */
+    --accent-color: #4F46E5;
+    /* 10% Cobalt */
     --accent-hover: #4338CA;
     --text-normal: #cccccc;
     --text-bright: #ffffff;
@@ -14,24 +19,28 @@
     --error-color: #EF4444;
     --success-color: #10B981;
     --warning-color: #F59E0B;
-    
     --font-main: 'Inter', system-ui, sans-serif;
     --font-code: 'Fira Code', 'Oxygen Mono', monospace;
-    
     --radius-small: 2px;
     --radius-md: 4px;
 }
 
 [data-theme="light"] {
-    --bg-primary: #f3f3f3;
+    --bg-primary: #f8fbff;
+    /* 60% light neutral */
     --bg-secondary: #ffffff;
-    --bg-sidebar: #ebf0f5;
-    --bg-activity: #2c2c2c; /* Оставляем темным для контраста */
-    --border-color: #d1d5db;
-    --accent-color: #2563eb;
-    --text-normal: #374151;
-    --text-bright: #111827;
-    --text-muted: #6b7280;
+    /* 30% editor surface */
+    --bg-sidebar: #e6eef9;
+    /* 30% sidebar / panel surface */
+    --bg-activity: #d9e7f4;
+    /* activity bar light gray-blue */
+    --border-color: #cbd7e6;
+    --accent-color: #007acc;
+    /* 10% blue accent */
+    --accent-hover: #005fa8;
+    --text-normal: #1f2937;
+    --text-bright: #0f172a;
+    --text-muted: #64748b;
 }
 
 * {
@@ -50,7 +59,9 @@ body {
     overflow: hidden;
 }
 
+
 /* Activity Bar (VS Code Vertical menu) */
+
 .activity-bar {
     width: 48px;
     background-color: var(--bg-activity);
@@ -72,9 +83,87 @@ body {
     cursor: pointer;
     transition: color 0.2s;
     border-left: 2px solid transparent;
+    background: transparent;
+    border: none;
+    padding: 0;
+    font: inherit;
 }
 
-.activity-bar__icon:hover { color: var(--text-bright); }
+.activity-bar__icon:hover {
+    color: var(--text-bright);
+}
+
+.activity-bar__icon:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.monaco-editor-container {
+    width: 100%;
+    height: 100%;
+}
+
+.monaco-editor .line-highlight {
+    background-color: rgba(0, 122, 204, 0.16);
+}
+
+.ai-modal {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 20px;
+    background-color: var(--bg-secondary);
+    color: var(--text-normal);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    width: min(420px, 90vw);
+}
+
+.ai-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ai-modal label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.ai-modal select {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-normal);
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.skip-link:focus-visible {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 8px 12px;
+    margin: 10px;
+    background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    z-index: 1000;
+}
+
 .activity-bar__icon--active {
     color: var(--text-bright);
     border-left-color: var(--accent-color);
@@ -86,7 +175,9 @@ body {
     overflow: hidden;
 }
 
+
 /* Sidebar */
+
 .sidebar {
     width: 260px;
     background-color: var(--bg-sidebar);
@@ -120,7 +211,9 @@ body {
     cursor: pointer;
 }
 
+
 /* Workspace */
+
 .workspace {
     flex: 1;
     display: flex;
@@ -154,7 +247,9 @@ body {
     font-weight: 600;
 }
 
-.btn-ide:hover { background: var(--accent-hover); }
+.btn-ide:hover {
+    background: var(--accent-hover);
+}
 
 .editor-preview-container {
     display: flex;
@@ -187,16 +282,29 @@ body {
     z-index: 10;
 }
 
-.resizer-h:hover { background: var(--accent-color); }
+.resizer-h:hover {
+    background: var(--accent-color);
+}
 
 .preview-pane {
     flex: 1;
-    background-color: #f8f9fa; /* draw.io white paper */
+    background-color: var(--bg-secondary);
     position: relative;
     overflow: hidden;
 }
 
+.diagram-text {
+    padding: 24px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    color: var(--text-normal);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+
 /* Bottom Panel */
+
 .bottom-panel {
     height: 180px;
     background-color: var(--bg-primary);
@@ -229,7 +337,9 @@ body {
     border-bottom-color: var(--accent-color);
 }
 
+
 /* Toast System */
+
 #toast-container {
     position: fixed;
     bottom: 40px;
@@ -243,10 +353,24 @@ body {
     color: white;
     border-radius: var(--radius-md);
     font-size: 13px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    border-left: 5px solid rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-left: 5px solid rgba(0, 0, 0, 0.2);
     animation: slideIn 0.3s ease;
 }
-.toast--error { background-color: var(--error-color); }
-.toast--ok { background-color: var(--success-color); }
-@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+.toast--error {
+    background-color: var(--error-color);
+}
+
+.toast--ok {
+    background-color: var(--success-color);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
