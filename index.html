@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisualDSL IDE - Enterprise Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body data-theme="dark">
+    
+    <div id="main-layout" style="display: flex; height: 100vh;">
+        <!-- Activity Bar -->
+        <nav class="activity-bar">
+            <div class="activity-bar__icon activity-bar__icon--active" title="Explorer (Files)" id="act-explorer">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            </div>
+            <div class="activity-bar__icon" title="Search" id="act-search">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+            <div class="activity-bar__icon" title="Debug" id="act-debug">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+            </div>
+            <div class="activity-bar__icon" title="Extensions" id="act-ext">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3.5 13h6V5.5L3.5 13zM13 13h6.5l-6-6v6.5zM13 3.5l6 6H13v-6zM3.5 14.5l6 6v-6H3.5z"></path></svg>
+            </div>
+            <div style="flex: 1;"></div>
+            <div class="activity-bar__icon" title="Documentation" id="act-docs">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"></path></svg>
+            </div>
+            <div class="activity-bar__icon" title="Profile" id="act-profile">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
+            </div>
+        </nav>
+
+        <div id="app-container">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="main-sidebar">
+                <div class="sidebar__header">Explorer: VisualDSL</div>
+                <div class="sidebar__content">
+                    <div class="folder active">
+                        <span class="folder-name"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg> Shablony (Templates)</span>
+                        <ul class="file-list" id="template-list">
+                            <li><button data-tpl="uml_class"><span>UML Class Diagram</span></button></li>
+                            <li><button data-tpl="bpmn_process"><span>BPMN Process Flow</span></button></li>
+                            <li><button data-tpl="petri_net"><span>Petri Net Basic</span></button></li>
+                        </ul>
+                    </div>
+                    <div class="folder active">
+                        <span class="folder-name"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg> Labs</span>
+                        <ul class="file-list" id="lab-files">
+                            <li class="active"><button data-file="current_project.vdl"><span>current_project.vdl</span></button></li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Workspace -->
+            <div class="workspace">
+                <header class="header-toolbar">
+                    <div class="file-path" id="file-path">labs / current_project.vdl</div>
+                    <div class="header-toolbar__actions">
+                        <select id="engine-select" class="btn-ide" style="background: #1e1e1e; border: 1px solid var(--border-color);">
+                            <option value="udl">Internal UDL</option>
+                            <option value="mermaid">Mermaid</option>
+                            <option value="plantuml">PlantUML</option>
+                        </select>
+                        <button class="btn-ide" id="btn-run">RUN</button>
+                        <button class="btn-ide" id="btn-save" style="background:#333">SAVE</button>
+                        <button class="btn-ide" id="btn-ai" style="background:var(--success-color)">AI</button>
+                        <button class="btn-ide" id="btn-theme-toggle" style="background:transparent; border: 1px solid var(--accent-color)">THEME</button>
+                    </div>
+                </header>
+
+                <div class="editor-preview-container">
+                    <div class="editor-pane" id="editor-container">
+                        <textarea id="code-editor" class="editor-textarea" spellcheck="false">graph TD
+    User([User])
+    App[VisualDSL IDE]
+    DB[(Database)]
+    AI{AI Engine}
+
+    User -- "Writes DSL" --> App
+    App -- "Parses" --> AI
+    AI -- "DSL Snippet" --> App
+    App -- "Stores" --> DB
+    App -- "Renders" --> View[SVG Preview]</textarea>
+                    </div>
+
+                    <div class="resizer-h" id="main-resizer"></div>
+
+                    <div class="preview-pane" id="preview-container">
+                        <div id="mermaid-view" class="mermaid" style="padding: 20px; text-align: center;"></div>
+                    </div>
+                </div>
+
+                <!-- Bottom Panel -->
+                <footer class="bottom-panel">
+                    <nav class="panel-tabs">
+                        <button class="panel-tab panel-tab--active" data-panel="terminal">Terminal</button>
+                        <button class="panel-tab" data-panel="problems">Problems (0)</button>
+                        <button class="panel-tab" data-panel="output">Output</button>
+                    </nav>
+                    <div class="panel-content" id="panel-console" style="padding: 10px; font-family:var(--font-code); font-size: 12px; overflow: auto;">
+                        [system] VisualDSL Terminal Initialized.
+                        [info] Ready for modeling.
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <footer id="status-bar" class="status-bar" style="height: 22px; background: var(--accent-color); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 11px;">
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div id="status-branch" style="display: flex; align-items: center; gap: 4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg> main*
+            </div>
+            <div id="status-diagnostics" style="display: flex; gap: 8px;">
+                <span id="stat-err">ⓧ 0</span>
+                <span id="stat-warn">⚠ 0</span>
+            </div>
+            <span id="stat-last-action">Last Saved: Just now</span>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <span id="stat-pos">Ln 1, Col 1</span>
+            <span>Spaces: 4</span>
+            <span>UTF-8</span>
+            <span id="stat-lang">VisualDSL (UDL)</span>
+        </div>
+    </footer>
+
+    <div id="toast-container"></div>
+    <script src="app.js"></script>
+</body>
+</html>
