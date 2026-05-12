@@ -5,20 +5,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..schemas import (
-    ProcessRequest, ProcessResponse,
-    DiagramCreate, DiagramResponse,
-    AiRequest, AiResponse,
-    ExportGithubRequest, ExportGithubResponse,
+    ProcessRequest,
+    DiagramCreate,
+    DiagramResponse,
+    AiRequest,
+    AiResponse,
+    ExportGithubRequest,
+    ExportGithubResponse,
     HealthResponse,
-    DiagramVersionResponse,
-    DiffRequest,
-    DiffResponse,
-    RollbackRequest,
-    ExportRequest,
-    ExportResponse,
 )
 
-from ..db import get_db, Diagram, DiagramVersion
+
+from ..db import get_db, Diagram
+
 
 from ..parser import parse_udl, UDLParseError
 from ..services import GeminiService, KrokiService, GitHubService
@@ -44,7 +43,8 @@ async def health_check():
 # ===== DIAGRAM PROCESSING =====
 
 @router.post("/process", response_model=None)
-async def process_diagram(payload: ProcessRequest):
+async def process_diagram(payload: ProcessRequest) -> dict[str, object]:
+
     """
     Обработать код диаграммы и вернуть результат (SVG или AST).
     
@@ -122,7 +122,7 @@ async def save_diagram(payload: DiagramCreate, db: Session = Depends(get_db)):
         db.refresh(diagram)
         
         logger.info(f"Diagram saved with ID: {diagram.id}")
-        return DiagramResponse.from_orm(diagram)
+        return DiagramResponse.model_validate(diagram)
         
     except Exception as exc:
         db.rollback()
@@ -144,7 +144,8 @@ async def get_diagram(diagram_id: int, db: Session = Depends(get_db)):
         logger.warning(f"Diagram {diagram_id} not found")
         raise HTTPException(status_code=404, detail="Diagram not found")
     
-    return DiagramResponse.from_orm(diagram)
+    return DiagramResponse.model_validate(diagram)
+
 
 
 @router.get("/diagrams", response_model=list[DiagramResponse])
@@ -156,7 +157,7 @@ async def list_diagrams(skip: int = 0, limit: int = 10, db: Session = Depends(ge
         Diagram.is_active == True
     ).offset(skip).limit(limit).all()
     
-    return [DiagramResponse.from_orm(d) for d in diagrams]
+    return [DiagramResponse.model_validate(d) for d in diagrams]
 
 
 # ===== AI ASSISTANT =====
@@ -190,7 +191,8 @@ async def generate_ai_response(payload: AiRequest):
 # ===== EXPORT =====
 
 @router.post("/export/github", response_model=ExportGithubResponse)
-async def export_to_github(payload: ExportGithubRequest):
+async def export_to_github(payload: ExportGithubRequest) -> ExportGithubResponse:
+
     """Экспортировать код диаграммы на GitHub как публичный Gist."""
     logger.info(f"GitHub export: title={payload.title}")
     
