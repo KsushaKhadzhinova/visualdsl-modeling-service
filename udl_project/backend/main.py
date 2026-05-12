@@ -1,163 +1,148 @@
+"""
+VisualDSL IDE Backend - точка входа FastAPI приложения.
+Асинхронный REST API для обработки диаграмм, парсинга, AI и сохранения.
+"""
 from pathlib import Path
-
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-import httpx
-from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
+import time
 
-from .parser_engine import parse_udl, UDLParseError
-from .ai_service import generate_ai_response
-from .db import get_db, Diagram
+from .core import settings, logger
+from .db import init_db
+from .api import router as api_router
 
-app = FastAPI(title="VisualDSL Backend")
+# ===== ИНИЦИАЛИЗАЦИЯ FASTAPI =====
 
+app = FastAPI(
+    title=settings.app_title,
+    description="REST API для генерации и визуализации диаграмм через различные нотации",
+    version=settings.app_version,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
+)
+
+
+# ===== MIDDLEWARE СТЕК =====
+
+# CORS Middleware - разрешаем запросы с фронтенда
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.allowed_origins.split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-frontend_dir = Path(__file__).resolve().parents[1] / "frontend"
-app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
-
-class DiagramRequest(BaseModel):
-    code: str
-    engine: str
-    notation: str
-
-class AiRequest(BaseModel):
-    prompt: str
-
-class SaveRequest(BaseModel):
-    title: str = "current_project.vdl"
-    code: str
-    engine: str
-    notation: str
-
-class GithubExportRequest(BaseModel):
-    code: str
-    description: str = "Exported from VisualDSL IDE"
+# GZip Middleware - сжимаем большие ответы (SVG, parse trees)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
-async def render_via_kroki(code: str, diagram_type: str) -> str:
-    diagram_type = diagram_type.lower().strip()
-    if diagram_type == "graphviz":
-        diagram_type = "dot"
+# ===== CUSTOM MIDDLEWARE =====
 
-    allowed = {"mermaid", "plantuml", "dot", "d2"}
-    if diagram_type not in allowed:
-        raise HTTPException(status_code=400, detail=f"Unsupported Kroki type: {diagram_type}")
-
-    url = f"https://kroki.io/{diagram_type}/svg"
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.post(url, content=code.encode("utf-8"), headers={"Content-Type": "text/plain"})
-        if response.status_code != 200:
-            raise HTTPException(status_code=502, detail=f"Kroki render failed: {response.status_code}")
-        return response.text
-
-
-@app.post("/api/save")
-async def save_diagram(payload: SaveRequest, db: Session = Depends(get_db)):
-    try:
-        # Создаем новую запись в БД
-        new_diagram = Diagram(
-            title=payload.title,
-            code=payload.code,
-            engine=payload.engine,
-            notation=payload.notation
-        )
-        db.add(new_diagram)
-        db.commit()
-        db.refresh(new_diagram) # Получаем сгенерированный ID
-        
-        return {"status": "success", "id": new_diagram.id, "message": "Saved to DB"}
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(exc)}")
-
-
-@app.post("/api/export/github")
-async def export_to_github(payload: GithubExportRequest):
-    # Используем публичный API GitHub для создания анонимных Gist
-    # Идеально подходит для демонстрации интеграции с REST API в рамках Лабы 6
-    url = "https://api.github.com/gists"
-    data = {
-        "description": payload.description,
-        "public": True,
-        "files": {
-            "diagram.udl": {
-                "content": payload.code
-            }
-        }
-    }
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    """Добавляет время обработки запроса в заголовки ответа для отладки."""
+    start_time = time.time()
     
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(url, json=data)
-            if response.status_code == 201:
-                gist_url = response.json().get("html_url")
-                return {"status": "success", "url": gist_url}
-            else:
-                raise HTTPException(status_code=response.status_code, detail="GitHub API Error")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/process")
-async def process_diagram(payload: DiagramRequest):
-    engine = payload.engine.lower().strip()
-    notation = payload.notation.lower().strip()
-
-    if engine in {"mermaid", "plantuml", "graphviz", "d2"}:
-        svg = await render_via_kroki(payload.code, engine)
-        return {
-            "status": "success",
-            "engine": engine,
-            "notation": notation,
-            "svg": svg,
-            "metadata": {"lines": len(payload.code.splitlines()), "chars": len(payload.code)},
-        }
-
-    if engine == "kroki":
-        target = notation if notation and notation != "none" else "mermaid"
-        svg = await render_via_kroki(payload.code, target)
-        return {
-            "status": "success",
-            "engine": engine,
-            "notation": target,
-            "svg": svg,
-            "metadata": {"lines": len(payload.code.splitlines()), "chars": len(payload.code)},
-        }
-
-    if engine == "udl":
-        try:
-            parse_tree = parse_udl(payload.code)
-            return {
-                "status": "success",
-                "engine": engine,
-                "notation": notation,
-                "parseTree": parse_tree,
-                "metadata": {"lines": len(payload.code.splitlines()), "chars": len(payload.code)},
-            }
-        except UDLParseError as exc:
-            raise HTTPException(status_code=422, detail=str(exc))
-
-    raise HTTPException(status_code=400, detail=f"Unsupported engine: {payload.engine}")
-
-
-@app.post("/api/ai")
-async def generate_ai(payload: AiRequest):
+    # Логируем входящий запрос
+    logger.debug(f"{request.method} {request.url.path}")
+    
     try:
-        response = await generate_ai_response(payload.prompt)
-        return {"response": response}
+        response = await call_next(request)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        logger.error(f"Request failed: {exc}", exc_info=True)
+        raise
+    
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    
+    # Логируем исходящий ответ
+    logger.debug(f"Response: {response.status_code} ({process_time:.3f}s)")
+    
+    return response
 
 
-@app.get("/api/health")
-async def health_check():
-    return {"status": "ok", "service": "VisualDSL Backend"}
+# ===== GLOBAL ERROR HANDLER =====
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Обработчик HTTP исключений - преобразует их в красивый JSON."""
+    logger.warning(f"HTTP {exc.status_code}: {exc.detail}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "status": "error",
+            "code": exc.status_code,
+            "detail": exc.detail,
+            "path": str(request.url.path)
+        }
+    )
+
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Обработчик всех необработанных исключений."""
+    logger.error(f"Unexpected error: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "code": 500,
+            "detail": "Internal server error. Please check the logs.",
+            "path": str(request.url.path)
+        }
+    )
+
+
+# ===== ЖИЗНЕННЫЙ ЦИКЛ ПРИЛОЖЕНИЯ =====
+
+@app.on_event("startup")
+async def startup_event():
+    """Инициализация при запуске приложения."""
+    logger.info(f"Starting {settings.app_title} v{settings.app_version}")
+    logger.info(f"Environment: {settings.app_env}")
+    logger.info(f"Database: {settings.database_url}")
+    init_db()
+    logger.info("Database initialized")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Очистка при завершении приложения."""
+    logger.info(f"Shutting down {settings.app_title}")
+
+
+# ===== РЕГИСТРАЦИЯ МАРШРУТОВ =====
+
+# API routes
+app.include_router(api_router)
+
+
+# ===== СТАТИЧЕСКИЕ ФАЙЛЫ =====
+
+# Подключаем фронтенд (HTML, CSS, JS)
+frontend_dir = Path(__file__).resolve().parents[1] / "frontend"
+if frontend_dir.exists():
+    logger.info(f"Mounting frontend from: {frontend_dir}")
+    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+else:
+    logger.warning(f"Frontend directory not found: {frontend_dir}")
+
+
+# ===== ЛОГИРОВАНИЕ ЗАПУСКА =====
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    logger.info(f"Starting Uvicorn server on {settings.app_host}:{settings.app_port}")
+    uvicorn.run(
+        "udl_project.backend.main:app",
+        host=settings.app_host,
+        port=settings.app_port,
+        reload=settings.app_debug,
+        log_level=settings.log_level.lower()
+    )

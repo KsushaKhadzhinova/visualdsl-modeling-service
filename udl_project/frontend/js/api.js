@@ -1,9 +1,11 @@
+const API_BASE_URL = window.location.protocol.startsWith('http') ? window.location.origin : 'http://127.0.0.1:8000';
+
 window.apiService = {
     /**
      * Отправляет код диаграммы на сервер для рендеринга.
      */
     async processDiagram(code, engine, notation) {
-        const response = await fetch('/api/process', {
+        const response = await fetch(`${API_BASE_URL}/api/process`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code: code, engine: engine, notation: notation }),
@@ -23,7 +25,7 @@ window.apiService = {
      * Сохраняет текущую диаграмму в базу данных SQLite.
      */
     async saveDiagram(code, engine, notation) {
-        const response = await fetch('/api/save', {
+        const response = await fetch(`${API_BASE_URL}/api/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -44,7 +46,7 @@ window.apiService = {
      * Запрашивает генерацию или исправление кода у AI (Gemini).
      */
     async generateAiResponse(prompt) {
-        const response = await fetch('/api/ai', {
+        const response = await fetch(`${API_BASE_URL}/api/ai`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt: prompt }),
@@ -63,7 +65,7 @@ window.apiService = {
      * Экспортирует код на GitHub Gist (демонстрация работы с внешними API).
      */
     async exportToGithub(code) {
-        const response = await fetch('/api/export/github', {
+        const response = await fetch(`${API_BASE_URL}/api/export/github`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

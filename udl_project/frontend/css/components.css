@@ -41,6 +41,7 @@
     background-color: var(--accent-10);
     color: #ffffff;
     border: none;
+    border-radius: var(--radius);
 }
 
 .btn-primary:hover {
@@ -152,7 +153,7 @@
 .modal {
     background: var(--bg-30);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 2px;
     color: var(--text-primary);
     padding: 0;
     max-width: 500px;
