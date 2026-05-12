@@ -9,9 +9,17 @@ from ..schemas import (
     DiagramCreate, DiagramResponse,
     AiRequest, AiResponse,
     ExportGithubRequest, ExportGithubResponse,
-    HealthResponse
+    HealthResponse,
+    DiagramVersionResponse,
+    DiffRequest,
+    DiffResponse,
+    RollbackRequest,
+    ExportRequest,
+    ExportResponse,
 )
-from ..db import get_db, Diagram
+
+from ..db import get_db, Diagram, DiagramVersion
+
 from ..parser import parse_udl, UDLParseError
 from ..services import GeminiService, KrokiService, GitHubService
 from ..core import logger, settings

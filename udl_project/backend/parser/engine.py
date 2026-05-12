@@ -2,7 +2,10 @@
 Парсер для UDL (Universal Diagram Language).
 Использует Lark LALR парсер для построения AST.
 """
+from typing import Any
+
 from lark import Lark, UnexpectedInput, LarkError
+from lark.tree import Tree
 
 from ..core import logger
 
@@ -82,7 +85,7 @@ def parse_udl(source_code: str) -> str:
         raise UDLParseError(error_msg)
 
 
-def _count_depth(tree, depth=0):
+def _count_depth(tree: Tree, depth: int = 0) -> int:
     """Вспомогательная функция для подсчета глубины дерева."""
     if hasattr(tree, "children"):
         if tree.children:

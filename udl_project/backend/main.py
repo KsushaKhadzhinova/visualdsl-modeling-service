@@ -10,11 +10,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 import time
 
-from .core import settings, logger
-from .db import init_db
-from .api import router as api_router
+from udl_project.backend.core import settings, logger
+from udl_project.backend.db import init_db
+from udl_project.backend.api import router as api_router
 
-# ===== ИНИЦИАЛИЗАЦИЯ FASTAPI =====
+# ===== ИНИЦИАЛИЗАЦИЯ FASTAPI == ===
 
 app = FastAPI(
     title=settings.app_title,

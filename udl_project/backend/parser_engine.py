@@ -1,6 +1,9 @@
+"""UDL parser (Simple text -> pretty parse tree)."""
+
 from lark import Lark, UnexpectedInput
 
-# Исправленная EBNF-грамматика языка UDL
+
+# EBNF grammar for UDL
 udl_grammar = r"""
 start: statement*
 statement: class_decl | relation | comment
@@ -20,23 +23,22 @@ STRING: /\".*?\"/
 
 %import common.WS_INLINE
 %ignore WS_INLINE
-%ignore /\s+/ 
+%ignore /\s+/
 """
 
-# Инициализация парсера LALR
+
 parser = Lark(udl_grammar, start="start", parser="lalr")
 
+
 class UDLParseError(Exception):
-    """Пользовательское исключение для ошибок синтаксиса UDL."""
-    pass
+    """User-friendly exception for UDL parse errors."""
+
 
 def parse_udl(source: str) -> str:
-    """
-    Парсит исходный код UDL и возвращает дерево разбора в текстовом виде.
-    """
+    """Parse UDL and return `tree.pretty()`."""
     try:
-        tree = parser.parse(source)
+        tree = parser.parse(source)  # type: ignore[no-any-return]
         return tree.pretty()
     except UnexpectedInput as exc:
-        # Выбрасываем понятную ошибку для бэкенда
         raise UDLParseError(str(exc))
+

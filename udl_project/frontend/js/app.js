@@ -100,17 +100,50 @@ async function runDiagram() {
             logToTerminal('Visualization rendered successfully.', 'success');
 
             // Настройка Bi-Sync (связь клика по SVG с кодом)
+            // Контракт для "точности": бэкенд проставляет data-udl-line на кликабельных SVG узлах.
+            // Если атрибут отсутствует — используем более строгую эвристику, чем includes(text).
             const nodes = previewOutput.querySelectorAll('svg g.node, svg g.class, svg g.cluster');
             nodes.forEach(node => {
                 node.style.cursor = 'pointer';
                 node.addEventListener('click', () => {
-                    const text = node.textContent.trim().split('\n')[0];
+                    const udlLineAttr = node.dataset && (node.dataset.udlLine || node.dataset.udlLineNumber);
+                    if (udlLineAttr && window.biSync) {
+                        const line = Number(udlLineAttr);
+                        if (Number.isFinite(line) && line >= 1) {
+                            window.biSync.highlightCodeLine(line);
+                            logToTerminal(`Sync: Jumped to line ${line} (svg data-udl-line)`);
+                        }
+                        return;
+                    }
+
+                    const rawText = (node.textContent || '').trim().split('\n')[0];
+                    if (!rawText) return;
+
+                    const needle = rawText.replace(/\s+/g, ' ').toLowerCase();
                     const fullCode = window.editorService.getValue();
                     const lines = fullCode.split('\n');
-                    const lineIdx = lines.findIndex(l => l.includes(text));
-                    if (lineIdx !== -1 && window.biSync) {
-                        window.biSync.highlightCodeLine(lineIdx + 1);
-                        logToTerminal(`Sync: Jumped to line ${lineIdx + 1} (${text})`);
+
+                    // Строже, чем includes(): ищем строку, где >=2 токена из needle совпали как подстроки.
+                    const tokens = needle.split(' ').map(t => t.trim()).filter(Boolean);
+                    let bestIdx = -1;
+                    let bestScore = 0;
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const hay = lines[i].replace(/\s+/g, ' ').toLowerCase();
+                        let hit = 0;
+                        for (const t of tokens) {
+                            if (t.length < 3) continue;
+                            if (hay.includes(t)) hit++;
+                        }
+                        if (hit > bestScore && hit >= 2) {
+                            bestScore = hit;
+                            bestIdx = i;
+                        }
+                    }
+
+                    if (bestIdx !== -1 && window.biSync) {
+                        window.biSync.highlightCodeLine(bestIdx + 1);
+                        logToTerminal(`Sync: Jumped to line ${bestIdx + 1} (${rawText})`);
                     }
                 });
             });
@@ -125,7 +158,7 @@ async function runDiagram() {
 }
 
 function escapeHtml(value) {
-    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return value.replace(/&/g, '&amp;').replace(/</g, '<').replace(/>/g, '>');
 }
 
 /**
@@ -248,3 +281,4 @@ window.addEventListener('DOMContentLoaded', async() => {
         logToTerminal(`Editor Init Error: ${err.message}`, 'error');
     }
 });
+
