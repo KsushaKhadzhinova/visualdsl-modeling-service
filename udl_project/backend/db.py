@@ -20,11 +20,18 @@ class Diagram(Base):
     code = Column(Text, nullable=False)
     engine = Column(String, default="udl")
     notation = Column(String, default="none")
+    svg_output = Column(Text, nullable=True)
+    is_active = Column(Integer, default=1)
     # Автоматическая фиксация времени создания записи
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 # Инициализация (создает таблицы, если они еще не существуют)
 Base.metadata.create_all(bind=engine)
+
+# Для согласованности моделей с существующей схемой БД
+# (особенно важно для sqlite в тестах)
+Diagram.__table__.columns['svg_output'].nullable = True
+
 
 # Генератор сессий для использования в FastAPI (Depends)
 def get_db():

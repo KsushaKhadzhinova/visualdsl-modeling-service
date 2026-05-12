@@ -35,7 +35,7 @@ async def health_check():
 
 # ===== DIAGRAM PROCESSING =====
 
-@router.post("/process", response_model=ProcessResponse)
+@router.post("/process", response_model=None)
 async def process_diagram(payload: ProcessRequest):
     """
     Обработать код диаграммы и вернуть результат (SVG или AST).
@@ -53,16 +53,18 @@ async def process_diagram(payload: ProcessRequest):
             try:
                 parse_tree = parse_udl(payload.code)
                 logger.debug("UDL parsing successful")
-                return ProcessResponse(
-                    status="success",
-                    engine=engine,
-                    notation=notation,
-                    parse_tree=parse_tree,
-                    metadata={"lines": len(payload.code.splitlines()), "chars": len(payload.code)}
-                )
+                # Тесты ожидают parseTree (camelCase)
+                return {
+                    "status": "success",
+                    "engine": engine,
+                    "notation": notation,
+                    "parseTree": parse_tree,
+                    "metadata": {"lines": len(payload.code.splitlines()), "chars": len(payload.code)}
+                }
+            
             except UDLParseError as exc:
-                logger.error(f"UDL parse error: {exc.message}")
-                raise HTTPException(status_code=422, detail=str(exc.message))
+                logger.error(f"UDL parse error: {exc}")
+                raise HTTPException(status_code=422, detail=str(exc))
         
         # === Внешние рендеры (Kroki) ===
         if engine in {"mermaid", "plantuml", "graphviz", "d2", "kroki"}:
@@ -71,13 +73,13 @@ async def process_diagram(payload: ProcessRequest):
             try:
                 svg = await KrokiService.render(payload.code, target_type)
                 logger.debug(f"Kroki rendering successful for {target_type}")
-                return ProcessResponse(
-                    status="success",
-                    engine=engine,
-                    notation=notation,
-                    svg=svg,
-                    metadata={"lines": len(payload.code.splitlines()), "chars": len(payload.code)}
-                )
+                return {
+                    "status": "success",
+                    "engine": engine,
+                    "notation": notation,
+                    "svg": svg,
+                    "metadata": {"lines": len(payload.code.splitlines()), "chars": len(payload.code)}
+                }
             except Exception as exc:
                 logger.error(f"Kroki rendering failed: {exc}")
                 raise HTTPException(status_code=502, detail=f"Rendering failed: {str(exc)}")

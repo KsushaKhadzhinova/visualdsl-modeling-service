@@ -10,7 +10,7 @@ class_body: (property | method)*
 property: SIGNED_NAME ":" TYPE
 method: SIGNED_NAME "(" ")"
 relation: NAME ARROW NAME [":" STRING]
-comment: /\/\/.*$/
+comment: /\/\/[^\n]*/
 
 ARROW: /(-->|<--|<->|--|->|<-)/
 SIGNED_NAME: /[+\-#][A-Za-z_][A-Za-z0-9_]*/

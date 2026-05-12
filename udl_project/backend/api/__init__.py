@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-# Импортируем все роуты (они будут зарегистрированы ниже)
-from . import routes  # noqa: F401, E402
+# Импортируем роуты и экспортируем router из routes.py
+from .routes import router as router  # noqa: F401
 
 __all__ = ["router"]

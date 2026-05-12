@@ -10,6 +10,7 @@ from ..core import logger
 UDL_GRAMMAR = r"""
 start: statement*
 
+
 statement: class_decl 
          | relation 
          | comment
@@ -31,6 +32,7 @@ STRING: /\".*?\"/
 %import common.WS_INLINE
 %ignore WS_INLINE
 %ignore /\s+/
+%ignore /\/\/.*$/
 """
 
 # Инициализируем парсер LALR
